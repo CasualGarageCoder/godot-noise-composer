@@ -98,6 +98,7 @@ protected:
 		if (operands[index].is_valid()) {
 			operands[index]->connect_changed(callable_mp(this, &NaryNoiseOperator<N>::_changed));
 		}
+		emit_changed();
 	}
 
 	Ref<Noise> get_operand(size_t index) const {

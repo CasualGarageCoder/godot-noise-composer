@@ -343,4 +343,33 @@ private:
 	real_t _get_noise_3d(real_t p_x, real_t p_y, real_t p_z);
 };
 
+class NoiseCoordinateRecompute : public Noise {
+public:
+	NoiseCoordinateRecompute();
+	virtual ~NoiseCoordinateRecompute() {}
+
+	virtual real_t get_noise_1d(real_t p_x) const override;
+
+	virtual real_t get_noise_2dv(Vector2 p_v) const override;
+	virtual real_t get_noise_2d(real_t p_x, real_t p_y) const override;
+
+	virtual real_t get_noise_3dv(Vector3 p_v) const override;
+	virtual real_t get_noise_3d(real_t p_x, real_t p_y, real_t p_z) const override;
+
+	void set_inner_noise(Ref<Noise> n);
+	Ref<Noise> get_inner_noise() const { return inner; }
+
+protected:
+	virtual real_t transform(real_t s) const = 0;
+	virtual Vector2 transform(Vector2 s) const = 0;
+	virtual Vector3 transform(Vector3 s) const = 0;
+
+	void _changed() {
+		emit_changed();
+	}
+
+private:
+	Ref<Noise> inner;
+};
+
 #endif

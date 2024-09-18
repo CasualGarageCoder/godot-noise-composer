@@ -243,3 +243,34 @@ void NoiseProxy::_bind_methods() {
 						 PROPERTY_HINT_RESOURCE_TYPE, "Noise"),
 			"set_source", "get_source");
 }
+
+real_t NoiseCoordinateRecompute::get_noise_1d(real_t p_x) const {
+	return inner.is_valid() ? inner->get_noise_1d(transform(p_x)) : 0.;
+}
+
+real_t NoiseCoordinateRecompute::get_noise_2dv(Vector2 p_v) const {
+	return inner.is_valid() ? inner->get_noise_2dv(transform(p_v)) : 0.;
+}
+
+real_t NoiseCoordinateRecompute::get_noise_2d(real_t p_x, real_t p_y) const {
+	return get_noise_2dv(Vector2(p_x, p_y));
+}
+
+real_t NoiseCoordinateRecompute::get_noise_3dv(Vector3 p_v) const {
+	return inner.is_valid() ? inner->get_noise_3dv(transform(p_v)) : 0.;
+}
+
+real_t NoiseCoordinateRecompute::get_noise_3d(real_t p_x, real_t p_y, real_t p_z) const {
+	return get_noise_3dv(Vector3(p_x, p_y, p_z));
+}
+
+void NoiseCoordinateRecompute::set_inner_noise(Ref<Noise> n) {
+	if (inner.is_valid()) {
+		inner->disconnect_changed(callable_mp(this, &NoiseCoordinateRecompute::_changed));
+	}
+	inner = n;
+	if (inner.is_valid()) {
+		inner->connect_changed(callable_mp(this, &NoiseCoordinateRecompute::_changed));
+	}
+	emit_changed();
+}
