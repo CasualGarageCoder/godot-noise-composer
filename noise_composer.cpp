@@ -32,54 +32,18 @@ void ConstantNoise::_bind_methods() {
 			"set_value", "get_value");
 }
 
-void NoiseCombinerOperator::set_first_noise(Ref<Noise> n) {
-	NaryNoiseOperator<2>::set_operand(n, 0);
-}
-void NoiseCombinerOperator::set_second_noise(Ref<Noise> n) {
-	NaryNoiseOperator<2>::set_operand(n, 1);
-}
-
 void NoiseCombinerOperator::_bind_methods() {
-	ClassDB::bind_method(D_METHOD("set_first_noise", "n"),
-			&NoiseCombinerOperator::set_first_noise);
-	ClassDB::bind_method(D_METHOD("set_second_noise", "n"),
-			&NoiseCombinerOperator::set_second_noise);
-	ClassDB::bind_method(D_METHOD("get_first_noise"),
-			&NoiseCombinerOperator::get_first_noise);
-	ClassDB::bind_method(D_METHOD("get_second_noise"),
-			&NoiseCombinerOperator::get_second_noise);
-
-	ADD_PROPERTY(PropertyInfo(Variant::OBJECT, "first",
-						 PROPERTY_HINT_RESOURCE_TYPE, "Noise"),
-			"set_first_noise", "get_first_noise");
-	ADD_PROPERTY(PropertyInfo(Variant::OBJECT, "second",
-						 PROPERTY_HINT_RESOURCE_TYPE, "Noise"),
-			"set_second_noise", "get_second_noise");
+	REGISTER_NOISE_OPERAND(NoiseCombinerOperator, first_noise, first)
+	REGISTER_NOISE_OPERAND(NoiseCombinerOperator, second_noise, second)
 }
-
-void AbsoluteNoise::set_source(Ref<Noise> n) { set_operand(n, 0); }
 
 void AbsoluteNoise::_bind_methods() {
-	ClassDB::bind_method(D_METHOD("set_source", "n"), &AbsoluteNoise::set_source);
-	ClassDB::bind_method(D_METHOD("get_source"), &AbsoluteNoise::get_source);
-
-	ADD_PROPERTY(PropertyInfo(Variant::OBJECT, "source",
-						 PROPERTY_HINT_RESOURCE_TYPE, "Noise"),
-			"set_source", "get_source");
+	REGISTER_NOISE_OPERAND(AbsoluteNoise, source, source)
 }
-
-void InvertNoise::set_source(Ref<Noise> n) { set_operand(n, 0); }
 
 void InvertNoise::_bind_methods() {
-	ClassDB::bind_method(D_METHOD("set_source", "n"), &InvertNoise::set_source);
-	ClassDB::bind_method(D_METHOD("get_source"), &InvertNoise::get_source);
-
-	ADD_PROPERTY(PropertyInfo(Variant::OBJECT, "source",
-						 PROPERTY_HINT_RESOURCE_TYPE, "Noise"),
-			"set_source", "get_source");
+	REGISTER_NOISE_OPERAND(InvertNoise, source, source)
 }
-
-void ClampNoise::set_source(Ref<Noise> n) { set_operand(n, 0); }
 
 void ClampNoise::set_lower_bound(real_t v) {
 	lower_bound = std::min(v, upper_bound);
@@ -99,8 +63,8 @@ void ClampNoise::set_normalized(bool f) {
 }
 
 void ClampNoise::_bind_methods() {
-	ClassDB::bind_method(D_METHOD("set_source", "n"), &ClampNoise::set_source);
-	ClassDB::bind_method(D_METHOD("get_source"), &ClampNoise::get_source);
+	REGISTER_NOISE_OPERAND(ClampNoise, source, source)
+
 	ClassDB::bind_method(D_METHOD("set_lower_bound", "v"),
 			&ClampNoise::set_lower_bound);
 	ClassDB::bind_method(D_METHOD("get_lower_bound"),
@@ -113,9 +77,6 @@ void ClampNoise::_bind_methods() {
 			&ClampNoise::set_normalized);
 	ClassDB::bind_method(D_METHOD("is_normalized"), &ClampNoise::is_normalized);
 
-	ADD_PROPERTY(PropertyInfo(Variant::OBJECT, "source",
-						 PROPERTY_HINT_RESOURCE_TYPE, "Noise"),
-			"set_source", "get_source");
 	ADD_PROPERTY(PropertyInfo(Variant::FLOAT, "lower_bound", PROPERTY_HINT_RANGE,
 						 "-1,1,0.001"),
 			"set_lower_bound", "get_lower_bound");
@@ -126,29 +87,27 @@ void ClampNoise::_bind_methods() {
 			"is_normalized");
 }
 
-void CurveNoise::set_source(Ref<Noise> n) { set_operand(n, 0); }
-
 void CurveNoise::set_curve(Ref<Curve> c) {
+	if (curve.is_valid()) {
+		curve->disconnect_changed(callable_mp(this, &CurveNoise::_curve_changed));
+	}
 	curve = c;
+	if (curve.is_valid()) {
+		curve->connect_changed(callable_mp(this, &CurveNoise::_curve_changed));
+	}
 	emit_changed();
 }
 
 void CurveNoise::_bind_methods() {
-	ClassDB::bind_method(D_METHOD("set_source", "n"), &CurveNoise::set_source);
-	ClassDB::bind_method(D_METHOD("get_source"), &CurveNoise::get_source);
+	REGISTER_NOISE_OPERAND(CurveNoise, source, source)
 
 	ClassDB::bind_method(D_METHOD("set_curve", "c"), &CurveNoise::set_curve);
 	ClassDB::bind_method(D_METHOD("get_curve"), &CurveNoise::get_curve);
 
-	ADD_PROPERTY(PropertyInfo(Variant::OBJECT, "source",
-						 PROPERTY_HINT_RESOURCE_TYPE, "Noise"),
-			"set_source", "get_source");
 	ADD_PROPERTY(PropertyInfo(Variant::OBJECT, "curve",
 						 PROPERTY_HINT_RESOURCE_TYPE, "Curve"),
 			"set_curve", "get_curve");
 }
-
-void AffineNoise::set_source(Ref<Noise> n) { set_operand(n, 0); }
 
 void AffineNoise::set_scale(real_t s) {
 	scale = s;
@@ -165,69 +124,22 @@ void AffineNoise::set_bias(real_t b) {
 real_t AffineNoise::get_bias() const { return bias; }
 
 void AffineNoise::_bind_methods() {
-	ClassDB::bind_method(D_METHOD("set_source", "n"), &AffineNoise::set_source);
-	ClassDB::bind_method(D_METHOD("get_source"), &AffineNoise::get_source);
+	REGISTER_NOISE_OPERAND(AffineNoise, source, source)
 
 	ClassDB::bind_method(D_METHOD("set_scale", "v"), &AffineNoise::set_scale);
 	ClassDB::bind_method(D_METHOD("get_scale"), &AffineNoise::get_scale);
 	ClassDB::bind_method(D_METHOD("set_bias", "v"), &AffineNoise::set_bias);
 	ClassDB::bind_method(D_METHOD("get_bias"), &AffineNoise::get_bias);
 
-	ADD_PROPERTY(PropertyInfo(Variant::OBJECT, "source",
-						 PROPERTY_HINT_RESOURCE_TYPE, "Noise"),
-			"set_source", "get_source");
 	ADD_PROPERTY(PropertyInfo(Variant::FLOAT, "scale"), "set_scale", "get_scale");
 	ADD_PROPERTY(PropertyInfo(Variant::FLOAT, "bias"), "set_bias", "get_bias");
 }
 
-void MixNoise::set_first_noise(Ref<Noise> n) { set_operand(n, 0); }
-
-Ref<Noise> MixNoise::get_first_noise() const { return get_operand(0); }
-
-void MixNoise::set_second_noise(Ref<Noise> n) { set_operand(n, 1); }
-
-Ref<Noise> MixNoise::get_second_noise() const { return get_operand(1); }
-
-void MixNoise::set_selector_noise(Ref<Noise> n) { set_operand(n, 2); }
-
-Ref<Noise> MixNoise::get_selector_noise() const { return get_operand(2); }
-
 void MixNoise::_bind_methods() {
-	ClassDB::bind_method(D_METHOD("set_first_noise", "n"),
-			&MixNoise::set_first_noise);
-	ClassDB::bind_method(D_METHOD("set_second_noise", "n"),
-			&MixNoise::set_second_noise);
-	ClassDB::bind_method(D_METHOD("set_selector_noise", "n"),
-			&MixNoise::set_selector_noise);
-	ClassDB::bind_method(D_METHOD("get_first_noise"),
-			&MixNoise::get_first_noise);
-	ClassDB::bind_method(D_METHOD("get_second_noise"),
-			&MixNoise::get_second_noise);
-	ClassDB::bind_method(D_METHOD("get_selector_noise"),
-			&MixNoise::get_selector_noise);
-
-	ADD_PROPERTY(PropertyInfo(Variant::OBJECT, "first",
-						 PROPERTY_HINT_RESOURCE_TYPE, "Noise"),
-			"set_first_noise", "get_first_noise");
-	ADD_PROPERTY(PropertyInfo(Variant::OBJECT, "second",
-						 PROPERTY_HINT_RESOURCE_TYPE, "Noise"),
-			"set_second_noise", "get_second_noise");
-	ADD_PROPERTY(PropertyInfo(Variant::OBJECT, "selector",
-						 PROPERTY_HINT_RESOURCE_TYPE, "Noise"),
-			"set_selector_noise", "get_selector_noise");
+	REGISTER_NOISE_OPERAND(MixNoise, first_noise, first)
+	REGISTER_NOISE_OPERAND(MixNoise, second_noise, second)
+	REGISTER_NOISE_OPERAND(MixNoise, selector_noise, selector)
 }
-
-void SelectNoise::set_first_noise(Ref<Noise> n) { set_operand(n, 0); }
-
-Ref<Noise> SelectNoise::get_first_noise() const { return get_operand(0); }
-
-void SelectNoise::set_second_noise(Ref<Noise> n) { set_operand(n, 1); }
-
-Ref<Noise> SelectNoise::get_second_noise() const { return get_operand(1); }
-
-void SelectNoise::set_selector_noise(Ref<Noise> n) { set_operand(n, 2); }
-
-Ref<Noise> SelectNoise::get_selector_noise() const { return get_operand(2); }
 
 void SelectNoise::set_threshold(real_t t) {
 	threshold = t;
@@ -237,33 +149,15 @@ void SelectNoise::set_threshold(real_t t) {
 real_t SelectNoise::get_threshold() const { return threshold; }
 
 void SelectNoise::_bind_methods() {
-	ClassDB::bind_method(D_METHOD("set_first_noise", "n"),
-			&SelectNoise::set_first_noise);
-	ClassDB::bind_method(D_METHOD("set_second_noise", "n"),
-			&SelectNoise::set_second_noise);
-	ClassDB::bind_method(D_METHOD("set_selector_noise", "n"),
-			&SelectNoise::set_selector_noise);
-	ClassDB::bind_method(D_METHOD("get_first_noise"),
-			&SelectNoise::get_first_noise);
-	ClassDB::bind_method(D_METHOD("get_second_noise"),
-			&SelectNoise::get_second_noise);
-	ClassDB::bind_method(D_METHOD("get_selector_noise"),
-			&SelectNoise::get_selector_noise);
+	REGISTER_NOISE_OPERAND(SelectNoise, first_noise, first)
+	REGISTER_NOISE_OPERAND(SelectNoise, second_noise, second)
+	REGISTER_NOISE_OPERAND(SelectNoise, selector_noise, selector)
 
 	ClassDB::bind_method(D_METHOD("set_threshold", "t"),
 			&SelectNoise::set_threshold);
-	ClassDB::bind_method(D_METHOD("get_treshold"),
+	ClassDB::bind_method(D_METHOD("get_threshold"),
 			&SelectNoise::get_threshold);
 
-	ADD_PROPERTY(PropertyInfo(Variant::OBJECT, "first",
-						 PROPERTY_HINT_RESOURCE_TYPE, "Noise"),
-			"set_first_noise", "get_first_noise");
-	ADD_PROPERTY(PropertyInfo(Variant::OBJECT, "second",
-						 PROPERTY_HINT_RESOURCE_TYPE, "Noise"),
-			"set_second_noise", "get_second_noise");
-	ADD_PROPERTY(PropertyInfo(Variant::OBJECT, "selector",
-						 PROPERTY_HINT_RESOURCE_TYPE, "Noise"),
-			"set_selector_noise", "get_selector_noise");
 	ADD_PROPERTY(PropertyInfo(Variant::FLOAT, "threshold"), "set_threshold", "get_threshold");
 }
 

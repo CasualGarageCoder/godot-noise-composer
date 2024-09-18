@@ -91,13 +91,12 @@ protected:
 
 	void set_operand(Ref<Noise> n, size_t index) {
 		ERR_FAIL_COND_MSG(index < 0 || index >= N, "Invalid operand index");
-		Ref<Noise> last = operands[index];
-		operands[index] = n;
-		if (last.is_valid()) {
-			last->disconnect_changed(callable_mp(this, &NaryNoiseOperator<N>::_changed));
+		if (operands[index].is_valid()) {
+			operands[index]->disconnect_changed(callable_mp(this, &NaryNoiseOperator<N>::_changed));
 		}
-		if (n.is_valid()) {
-			n->connect_changed(callable_mp(this, &NaryNoiseOperator<N>::_changed));
+		operands[index] = n;
+		if (operands[index].is_valid()) {
+			operands[index]->connect_changed(callable_mp(this, &NaryNoiseOperator<N>::_changed));
 		}
 	}
 
