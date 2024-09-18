@@ -29,7 +29,6 @@
 #include "noise_operator.h"
 #include "scene/resources/curve.h"
 #include <algorithm>
-#include <iostream>
 
 #define DECLARE_NOISE_OPERAND(op_name, op_num)                   \
 	void set_##op_name(Ref<Noise> n) { set_operand(n, op_num); } \
@@ -49,11 +48,11 @@ class ConstantNoise : public NaryNoiseOperator<0> {
 	OBJ_SAVE_TYPE(ConstantNoise);
 
 private:
-	real_t value;
+	real_t value{ 0. };
 
 public:
 	ConstantNoise() :
-			NaryNoiseOperator<0>([&](const std::array<real_t, 0> &) { return value; }), value(0.) {}
+			NaryNoiseOperator<0>([&](const std::array<real_t, 0> &) { return value; }) {}
 	virtual ~ConstantNoise() {}
 
 	void set_value(real_t v) {
@@ -170,10 +169,10 @@ class ClampNoise : public NaryNoiseOperator<1> {
 	OBJ_SAVE_TYPE(ClampNoise);
 
 private:
-	real_t upper_bound;
-	real_t lower_bound;
-	real_t interval;
-	bool normalize;
+	real_t upper_bound{ 1. };
+	real_t lower_bound{ -1. };
+	real_t interval{ 2. };
+	bool normalize{ false };
 
 public:
 	ClampNoise() :
@@ -181,11 +180,7 @@ public:
 					[&](const std::array<real_t, 1> &a) {
 						real_t clamped = std::clamp(a[0], lower_bound, upper_bound);
 						return (normalize && interval != 0.) ? (clamped - lower_bound) / interval : clamped;
-					}),
-			upper_bound(1.),
-			lower_bound(-1.),
-			interval(2.),
-			normalize(false) {}
+					}) {}
 
 	virtual ~ClampNoise() {}
 
@@ -235,12 +230,12 @@ class AffineNoise : public NaryNoiseOperator<1> {
 	OBJ_SAVE_TYPE(AffineNoise);
 
 private:
-	real_t scale;
-	real_t bias;
+	real_t scale{ 1. };
+	real_t bias{ 0. };
 
 public:
 	AffineNoise() :
-			NaryNoiseOperator<1>([&](const std::array<real_t, 1> &a) { return (scale * a[0]) + bias; }), scale(1.), bias(0.) {}
+			NaryNoiseOperator<1>([&](const std::array<real_t, 1> &a) { return (scale * a[0]) + bias; }) {}
 	virtual ~AffineNoise() {}
 
 	DECLARE_NOISE_OPERAND(source, 0)
@@ -282,7 +277,7 @@ class SelectNoise : public NaryNoiseOperator<3> {
 	OBJ_SAVE_TYPE(SelectNoise)
 
 private:
-	real_t threshold;
+	real_t threshold{ 0. };
 
 public:
 	SelectNoise() :
@@ -310,19 +305,18 @@ class NoiseProxy : public Noise {
 
 private:
 	Ref<Noise> source;
-	bool cached_1d;
-	bool cached_2d;
-	bool cached_3d;
-	real_t coord_1d;
-	Vector2 coord_2d;
-	Vector3 coord_3d;
-	real_t value_1d;
-	real_t value_2d;
-	real_t value_3d;
+	bool cached_1d{ false };
+	bool cached_2d{ false };
+	bool cached_3d{ false };
+	real_t coord_1d{ 0. };
+	Vector2 coord_2d{ 0., 0. };
+	Vector3 coord_3d{ 0., 0., 0. };
+	real_t value_1d{ 0. };
+	real_t value_2d{ 0. };
+	real_t value_3d{ 0. };
 
 public:
-	NoiseProxy() :
-			cached_1d(false), cached_2d(false), cached_3d(false) {}
+	NoiseProxy() {}
 	virtual ~NoiseProxy();
 
 	virtual real_t get_noise_1d(real_t p_x) const override;
