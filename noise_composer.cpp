@@ -22,6 +22,7 @@
 /**************************************************************************/
 
 #include "noise_composer.h"
+#include "core/object/class_db.h"
 
 void ConstantNoise::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("set_value", "v"), &ConstantNoise::set_value);
@@ -273,4 +274,49 @@ void NoiseCoordinateRecompute::set_inner_noise(Ref<Noise> n) {
 		inner->connect_changed(callable_mp(this, &NoiseCoordinateRecompute::_changed));
 	}
 	emit_changed();
+}
+
+void LinearTransformNoise::set_scale(real_t s) {
+	scale = s;
+	emit_changed();
+}
+
+void LinearTransformNoise::set_bias(real_t b) {
+	bias = b;
+	emit_changed();
+}
+
+void LinearTransformNoise::set_transform_2d(Transform2D t) {
+	transform_2d = t;
+	emit_changed();
+}
+
+void LinearTransformNoise::set_transform_3d(Transform3D t) {
+	transform_3d = t;
+	emit_changed();
+}
+
+void LinearTransformNoise::_bind_methods() {
+	ClassDB::bind_method(D_METHOD("set_source", "n"), &LinearTransformNoise::set_inner_noise);
+	ClassDB::bind_method(D_METHOD("get_source"), &LinearTransformNoise::get_inner_noise);
+
+	ClassDB::bind_method(D_METHOD("set_scale", "s"), &LinearTransformNoise::set_scale);
+	ClassDB::bind_method(D_METHOD("get_scale"), &LinearTransformNoise::get_scale);
+
+	ClassDB::bind_method(D_METHOD("set_bias", "b"), &LinearTransformNoise::set_bias);
+	ClassDB::bind_method(D_METHOD("get_bias"), &LinearTransformNoise::get_bias);
+
+	ClassDB::bind_method(D_METHOD("set_2d_transform", "t"), &LinearTransformNoise::set_transform_2d);
+	ClassDB::bind_method(D_METHOD("get_2d_transform"), &LinearTransformNoise::get_transform_2d);
+
+	ClassDB::bind_method(D_METHOD("set_3d_transform", "t"), &LinearTransformNoise::set_transform_3d);
+	ClassDB::bind_method(D_METHOD("get_3d_transform"), &LinearTransformNoise::get_transform_3d);
+
+	ADD_PROPERTY(PropertyInfo(Variant::OBJECT, "source",
+						 PROPERTY_HINT_RESOURCE_TYPE, "Noise"),
+			"set_source", "get_source");
+	ADD_PROPERTY(PropertyInfo(Variant::FLOAT, "scale"), "set_scale", "get_scale");
+	ADD_PROPERTY(PropertyInfo(Variant::FLOAT, "bias"), "set_bias", "get_bias");
+	ADD_PROPERTY(PropertyInfo(Variant::TRANSFORM2D, "2D_transform"), "set_2d_transform", "get_2d_transform");
+	ADD_PROPERTY(PropertyInfo(Variant::TRANSFORM3D, "3D_transform"), "set_3d_transform", "get_3d_transform");
 }

@@ -24,6 +24,7 @@
 #ifndef NOISE_COMPOSER_H
 #define NOISE_COMPOSER_H
 
+#include "core/math/transform_2d.h"
 #include "core/object/object.h"
 #include "core/object/ref_counted.h"
 #include "noise_operator.h"
@@ -345,7 +346,7 @@ private:
 
 class NoiseCoordinateRecompute : public Noise {
 public:
-	NoiseCoordinateRecompute();
+	NoiseCoordinateRecompute() {}
 	virtual ~NoiseCoordinateRecompute() {}
 
 	virtual real_t get_noise_1d(real_t p_x) const override;
@@ -370,6 +371,39 @@ protected:
 
 private:
 	Ref<Noise> inner;
+};
+
+class LinearTransformNoise : public NoiseCoordinateRecompute {
+	GDCLASS(LinearTransformNoise, Noise)
+	OBJ_SAVE_TYPE(LinearTransformNoise)
+public:
+	LinearTransformNoise() {}
+	virtual ~LinearTransformNoise() {}
+
+	void set_scale(real_t s);
+	real_t get_scale() const { return scale; }
+
+	void set_bias(real_t b);
+	real_t get_bias() const { return bias; }
+
+	void set_transform_2d(Transform2D t);
+	const Transform2D &get_transform_2d() const { return transform_2d; }
+
+	void set_transform_3d(Transform3D t);
+	const Transform3D &get_transform_3d() const { return transform_3d; }
+
+protected:
+	static void _bind_methods();
+
+	virtual real_t transform(real_t s) const override { return (s * scale) + bias; }
+	virtual Vector2 transform(Vector2 s) const override { return transform_2d.xform(s); }
+	virtual Vector3 transform(Vector3 s) const override { return transform_3d.xform(s); }
+
+private:
+	real_t scale{ 1. };
+	real_t bias{ 0. };
+	Transform2D transform_2d;
+	Transform3D transform_3d;
 };
 
 #endif

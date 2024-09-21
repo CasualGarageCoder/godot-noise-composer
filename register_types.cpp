@@ -42,6 +42,7 @@ void initialize_noise_composer_module(ModuleInitializationLevel p_level) {
 		GDREGISTER_CLASS(MixNoise);
 		GDREGISTER_CLASS(SelectNoise);
 		GDREGISTER_CLASS(NoiseProxy);
+		GDREGISTER_CLASS(LinearTransformNoise);
 	}
 }
 
