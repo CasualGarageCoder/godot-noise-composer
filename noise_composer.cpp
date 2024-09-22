@@ -400,15 +400,16 @@ void RescalerNoise::compute_affine_transformation(void *data) {
 
 void RescalerNoise::queue_update() {
 	queue_mutex.lock();
+	bool start = true;
 	if (update_thread.is_started()) {
 		if (!update_queued) {
 			update_thread.wait_to_finish();
-			update_queued = true;
+		} else {
+			start = false;
 		}
-	} else {
-		update_queued = true;
 	}
-	if (update_queued) {
+	if (start) {
+		update_queued = true;
 		update_thread.start(RescalerNoise::compute_affine_transformation, this);
 	}
 	queue_mutex.unlock();
