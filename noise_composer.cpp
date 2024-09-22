@@ -23,6 +23,7 @@
 
 #include "noise_composer.h"
 #include "core/object/class_db.h"
+#include <cmath>
 
 void ConstantNoise::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("set_value", "v"), &ConstantNoise::set_value);
@@ -319,4 +320,136 @@ void LinearTransformNoise::_bind_methods() {
 	ADD_PROPERTY(PropertyInfo(Variant::FLOAT, "bias"), "set_bias", "get_bias");
 	ADD_PROPERTY(PropertyInfo(Variant::TRANSFORM2D, "2D_transform"), "set_2d_transform", "get_2d_transform");
 	ADD_PROPERTY(PropertyInfo(Variant::TRANSFORM3D, "3D_transform"), "set_3d_transform", "get_3d_transform");
+}
+
+void RescalerNoise::set_noise(Ref<Noise> n) {
+	queue_mutex.lock();
+	if (noise.is_valid()) {
+		noise->disconnect_changed(callable_mp(this, &RescalerNoise::queue_update));
+	}
+	noise = n;
+	if (noise.is_valid()) {
+		noise->connect_changed(callable_mp(this, &RescalerNoise::queue_update));
+	}
+	queue_mutex.unlock();
+	queue_update();
+}
+
+real_t RescalerNoise::get_scale() const {
+	return is_working() ? 0. : scale;
+}
+
+real_t RescalerNoise::get_bias() const {
+	return bias;
+}
+
+real_t RescalerNoise::get_noise_1d(real_t p_x) const {
+	return noise.is_valid() ? (noise->get_noise_1d(p_x) * scale) + bias : 0.;
+}
+
+real_t RescalerNoise::get_noise_2dv(Vector2 p_v) const {
+	return get_noise_2d(p_v.x, p_v.y);
+}
+
+real_t RescalerNoise::get_noise_2d(real_t p_x, real_t p_y) const {
+	return noise.is_valid() ? (noise->get_noise_2d(p_x, p_y) * scale) + bias : 0.;
+}
+
+real_t RescalerNoise::get_noise_3dv(Vector3 p_v) const {
+	return get_noise_3d(p_v.x, p_v.y, p_v.z);
+}
+real_t RescalerNoise::get_noise_3d(real_t p_x, real_t p_y, real_t p_z) const {
+	return noise.is_valid() ? (noise->get_noise_3d(p_x, p_y, p_z) * scale) + bias : 0.;
+}
+
+void RescalerNoise::compute_affine_transformation(void *data) {
+	RescalerNoise *rescaler = reinterpret_cast<RescalerNoise *>(data);
+
+	if (rescaler->noise.is_valid()) {
+		real_t step = rescaler->step;
+		real_t range = rescaler->range;
+		while (rescaler->update_queued) {
+			rescaler->queue_mutex.lock();
+			rescaler->update_queued = false;
+			rescaler->queue_mutex.unlock();
+
+			real_t value = rescaler->noise->get_noise_2d(0., 0.);
+			real_t min = value, max = value;
+			for (real_t y = 0; y < range; y += step) {
+				for (real_t x = 0; x < range; x += step) {
+					value = rescaler->noise->get_noise_2d(x, y);
+					min = std::min(min, value);
+					max = std::max(max, value);
+				}
+			}
+			real_t diff = max - min;
+			if (Math::is_zero_approx(diff)) {
+				rescaler->scale = 0.;
+				rescaler->bias = 0.;
+			} else {
+				rescaler->scale = 2. / diff;
+				rescaler->bias = -(((2. * min) / diff) + 1.);
+			}
+		}
+	} else {
+		rescaler->scale = 0.;
+		rescaler->bias = 0.;
+	}
+	rescaler->emit_changed();
+}
+
+void RescalerNoise::queue_update() {
+	queue_mutex.lock();
+	if (update_thread.is_started()) {
+		if (!update_queued) {
+			update_thread.wait_to_finish();
+			update_queued = true;
+		}
+	} else {
+		update_queued = true;
+	}
+	if (update_queued) {
+		update_thread.start(RescalerNoise::compute_affine_transformation, this);
+	}
+	queue_mutex.unlock();
+}
+
+void RescalerNoise::set_range(real_t r) {
+	range = r;
+	queue_update();
+}
+
+void RescalerNoise::set_step(real_t s) {
+	step = s;
+	queue_update();
+}
+
+void RescalerNoise::_bind_methods() {
+	ClassDB::bind_method(D_METHOD("set_noise", "n"), &RescalerNoise::set_noise);
+	ClassDB::bind_method(D_METHOD("get_noise"), &RescalerNoise::get_noise);
+
+	ClassDB::bind_method(D_METHOD("get_scale"), &RescalerNoise::get_scale);
+	ClassDB::bind_method(D_METHOD("get_bias"), &RescalerNoise::get_bias);
+
+	ClassDB::bind_method(D_METHOD("set_range", "r"), &RescalerNoise::set_range);
+	ClassDB::bind_method(D_METHOD("get_range"), &RescalerNoise::get_range);
+
+	ClassDB::bind_method(D_METHOD("set_step", "s"), &RescalerNoise::set_step);
+	ClassDB::bind_method(D_METHOD("get_step"), &RescalerNoise::get_step);
+
+	ADD_PROPERTY(PropertyInfo(Variant::OBJECT, "noise",
+						 PROPERTY_HINT_RESOURCE_TYPE, "Noise"),
+			"set_noise", "get_noise");
+	ADD_PROPERTY(PropertyInfo(Variant::FLOAT, "range", PROPERTY_HINT_RANGE,
+						 "8,1024,0.5"),
+			"set_range", "get_range");
+	ADD_PROPERTY(PropertyInfo(Variant::FLOAT, "step", PROPERTY_HINT_RANGE,
+						 "0.01,16.,0.01"),
+			"set_step", "get_step");
+}
+
+RescalerNoise::~RescalerNoise() {
+	if (update_thread.is_started()) {
+		update_thread.wait_to_finish();
+	}
 }

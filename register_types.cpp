@@ -24,7 +24,6 @@
 #include "register_types.h"
 
 #include "noise_composer.h"
-#include "noise_operator.h"
 
 void initialize_noise_composer_module(ModuleInitializationLevel p_level) {
 	if (p_level == MODULE_INITIALIZATION_LEVEL_SCENE) {
@@ -43,6 +42,7 @@ void initialize_noise_composer_module(ModuleInitializationLevel p_level) {
 		GDREGISTER_CLASS(SelectNoise);
 		GDREGISTER_CLASS(NoiseProxy);
 		GDREGISTER_CLASS(LinearTransformNoise);
+		GDREGISTER_CLASS(RescalerNoise);
 	}
 }
 

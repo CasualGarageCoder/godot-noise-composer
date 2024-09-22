@@ -27,6 +27,8 @@
 #include "core/math/transform_2d.h"
 #include "core/object/object.h"
 #include "core/object/ref_counted.h"
+#include "core/os/mutex.h"
+#include "core/os/thread.h"
 #include "noise_operator.h"
 #include "scene/resources/curve.h"
 #include <algorithm>
@@ -406,4 +408,53 @@ private:
 	Transform3D transform_3d;
 };
 
+class RescalerNoise : public Noise {
+	GDCLASS(RescalerNoise, Noise)
+	OBJ_SAVE_TYPE(RescalerNoise)
+
+public:
+	RescalerNoise() {}
+	virtual ~RescalerNoise();
+
+	void set_noise(Ref<Noise> n);
+	Ref<Noise> get_noise() const { return noise; }
+
+	bool is_working() const { return update_thread.is_started(); }
+
+	real_t get_scale() const;
+	real_t get_bias() const;
+
+	void set_range(real_t r);
+	real_t get_range() const { return range; }
+
+	void set_step(real_t s);
+	real_t get_step() const { return step; }
+
+	virtual real_t get_noise_1d(real_t p_x) const override;
+
+	virtual real_t get_noise_2dv(Vector2 p_v) const override;
+	virtual real_t get_noise_2d(real_t p_x, real_t p_y) const override;
+
+	virtual real_t get_noise_3dv(Vector3 p_v) const override;
+	virtual real_t get_noise_3d(real_t p_x, real_t p_y, real_t p_z) const override;
+
+	friend void compute_affine_transformation(void *);
+
+protected:
+	static void _bind_methods();
+
+private:
+	static void compute_affine_transformation(void *);
+	void queue_update();
+
+private:
+	Ref<Noise> noise;
+	real_t scale{ 0. };
+	real_t bias{ 0. };
+	real_t range{ 16. };
+	real_t step{ 0.5 };
+	bool update_queued{ false };
+	Thread update_thread;
+	Mutex queue_mutex;
+};
 #endif
