@@ -32,6 +32,7 @@
 #include "noise_operator.h"
 #include "scene/resources/curve.h"
 #include <algorithm>
+#include <shared_mutex>
 
 #define DECLARE_NOISE_OPERAND(op_name, op_num)                   \
 	void set_##op_name(Ref<Noise> n) { set_operand(n, op_num); } \
@@ -456,5 +457,6 @@ private:
 	bool update_queued{ false };
 	Thread update_thread;
 	Mutex queue_mutex;
+	std::shared_mutex shared_mutex;
 };
 #endif

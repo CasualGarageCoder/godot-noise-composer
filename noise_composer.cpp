@@ -344,6 +344,7 @@ real_t RescalerNoise::get_bias() const {
 }
 
 real_t RescalerNoise::get_noise_1d(real_t p_x) const {
+	std::shared_lock<std::shared_mutex> lock(*(const_cast<std::shared_mutex *>(&shared_mutex)));
 	return noise.is_valid() ? (noise->get_noise_1d(p_x) * scale) + bias : 0.;
 }
 
@@ -352,6 +353,7 @@ real_t RescalerNoise::get_noise_2dv(Vector2 p_v) const {
 }
 
 real_t RescalerNoise::get_noise_2d(real_t p_x, real_t p_y) const {
+	std::shared_lock<std::shared_mutex> lock(*(const_cast<std::shared_mutex *>(&shared_mutex)));
 	return noise.is_valid() ? (noise->get_noise_2d(p_x, p_y) * scale) + bias : 0.;
 }
 
@@ -359,11 +361,13 @@ real_t RescalerNoise::get_noise_3dv(Vector3 p_v) const {
 	return get_noise_3d(p_v.x, p_v.y, p_v.z);
 }
 real_t RescalerNoise::get_noise_3d(real_t p_x, real_t p_y, real_t p_z) const {
+	std::shared_lock<std::shared_mutex> lock(*(const_cast<std::shared_mutex *>(&shared_mutex)));
 	return noise.is_valid() ? (noise->get_noise_3d(p_x, p_y, p_z) * scale) + bias : 0.;
 }
 
 void RescalerNoise::compute_affine_transformation(void *data) {
 	RescalerNoise *rescaler = reinterpret_cast<RescalerNoise *>(data);
+	std::unique_lock<std::shared_mutex> lock(rescaler->shared_mutex);
 
 	if (rescaler->noise.is_valid()) {
 		real_t step = rescaler->step;
