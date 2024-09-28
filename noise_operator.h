@@ -27,18 +27,17 @@
 #include <cstddef>
 #include <functional>
 
-#include "modules/noise/noise.h"
+#include "noise_base.h"
 
 template <std::size_t N>
-class NaryNoiseOperator : public Noise {
-	GDCLASS(NaryNoiseOperator<N>, Noise);
-
+class NaryNoiseOperator : public NoiseTreeNode {
 private:
 	std::array<Ref<Noise>, N> operands;
 	std::function<real_t(const std::array<real_t, N> &)> function;
 
 public:
 	explicit NaryNoiseOperator(std::function<real_t(const std::array<real_t, N> &)> f) :
+			NoiseTreeNode(N),
 			function(f) {
 	}
 
@@ -48,6 +47,10 @@ public:
 				operands[i]->disconnect_changed(callable_mp(this, &NaryNoiseOperator<N>::_changed));
 			}
 		}
+	}
+
+	virtual Ref<Noise> get_child(int n) const override {
+		return operands[n];
 	}
 
 	size_t get_operator_count() const { return N; }

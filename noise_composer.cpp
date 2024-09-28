@@ -22,6 +22,7 @@
 /**************************************************************************/
 
 #include "noise_composer.h"
+#include "core/error/error_macros.h"
 #include "core/object/class_db.h"
 #include <cmath>
 
@@ -234,6 +235,10 @@ void NoiseProxy::set_source(Ref<Noise> n) {
 }
 
 Ref<Noise> NoiseProxy::get_source() const {
+	return source;
+}
+
+Ref<Noise> NoiseProxy::get_child(int) const {
 	return source;
 }
 
