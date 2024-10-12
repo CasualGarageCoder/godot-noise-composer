@@ -37,9 +37,9 @@ void NoiseSeeder::set_seed(int s) {
 		}
 		to_check.pop();
 
-		if (t->is_class("NoiseTreeNode")) {
+		if (t->is_class("NoiseNode")) {
 			// It's pretty secure at this point ...
-			NoiseTreeNode *node = reinterpret_cast<NoiseTreeNode *>(t.ptr());
+			NoiseNode *node = reinterpret_cast<NoiseNode *>(t.ptr());
 			for (auto n : *node) {
 				auto it = checked.find(n);
 				if (it == checked.end()) {
@@ -47,9 +47,7 @@ void NoiseSeeder::set_seed(int s) {
 					checked.insert(n);
 				}
 			}
-		}
-
-		if (t->has_method("set_seed")) {
+		} else if (t->has_method("set_seed")) {
 			to_seed[t->get_instance_id()] = t;
 		}
 	}

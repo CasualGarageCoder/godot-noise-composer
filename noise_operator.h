@@ -30,14 +30,14 @@
 #include "noise_base.h"
 
 template <std::size_t N>
-class NaryNoiseOperator : public NoiseTreeNode {
+class NaryNoiseOperator : public NoiseNode {
 private:
 	std::array<Ref<Noise>, N> operands;
 	std::function<real_t(const std::array<real_t, N> &)> function;
 
 public:
 	explicit NaryNoiseOperator(std::function<real_t(const std::array<real_t, N> &)> f) :
-			NoiseTreeNode(N),
+			NoiseNode(N),
 			function(f) {
 	}
 

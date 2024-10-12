@@ -5,11 +5,11 @@
 #include <cstddef>
 #include <iterator>
 
-class NoiseTreeNode : public Noise {
-	GDCLASS(NoiseTreeNode, Noise);
+class NoiseNode : public Noise {
+	GDCLASS(NoiseNode, Noise);
 
 public:
-	NoiseTreeNode(size_t c) :
+	NoiseNode(size_t c) :
 			count{ c } {}
 
 	int get_child_count() { return count; }
@@ -18,8 +18,8 @@ public:
 
 protected:
 	static void _bind_methods() {
-		ClassDB::bind_method(D_METHOD("get_child", "n"), &NoiseTreeNode::get_child);
-		ClassDB::bind_method(D_METHOD("get_child_count"), &NoiseTreeNode::get_child_count);
+		ClassDB::bind_method(D_METHOD("get_child", "n"), &NoiseNode::get_child);
+		ClassDB::bind_method(D_METHOD("get_child_count"), &NoiseNode::get_child_count);
 	}
 
 private:
@@ -33,7 +33,7 @@ public:
 		using pointer = Ref<Noise>;
 		using reference = Ref<Noise>;
 
-		Iterator(NoiseTreeNode *n, int pos) :
+		Iterator(NoiseNode *n, int pos) :
 				node{ n }, index(pos) {}
 
 		reference operator*() const { return node->get_child(index); }
@@ -53,7 +53,7 @@ public:
 		friend bool operator!=(const Iterator &a, const Iterator &b) { return (a.node != b.node) || (a.index != b.index); }
 
 	private:
-		NoiseTreeNode *node;
+		NoiseNode *node;
 		int index;
 	};
 

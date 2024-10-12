@@ -48,7 +48,7 @@
 			"set_" #op_name, "get_" #op_name);
 
 class ConstantNoise : public NaryNoiseOperator<0> {
-	GDCLASS(ConstantNoise, NoiseTreeNode);
+	GDCLASS(ConstantNoise, NoiseNode);
 	OBJ_SAVE_TYPE(ConstantNoise);
 
 private:
@@ -72,7 +72,7 @@ protected:
 // Noise combiners
 
 class NoiseCombinerOperator : public NaryNoiseOperator<2> {
-	GDCLASS(NoiseCombinerOperator, NoiseTreeNode);
+	GDCLASS(NoiseCombinerOperator, NoiseNode);
 
 public:
 	NoiseCombinerOperator(std::function<real_t(const std::array<real_t, 2> &)> f) :
@@ -139,7 +139,7 @@ public:
 // Noise modifiers
 
 class AbsoluteNoise : public NaryNoiseOperator<1> {
-	GDCLASS(AbsoluteNoise, NoiseTreeNode);
+	GDCLASS(AbsoluteNoise, NoiseNode);
 	OBJ_SAVE_TYPE(AbsoluteNoise);
 
 public:
@@ -154,7 +154,7 @@ protected:
 };
 
 class InvertNoise : public NaryNoiseOperator<1> {
-	GDCLASS(InvertNoise, NoiseTreeNode);
+	GDCLASS(InvertNoise, NoiseNode);
 	OBJ_SAVE_TYPE(InvertNoise);
 
 public:
@@ -169,7 +169,7 @@ protected:
 };
 
 class ClampNoise : public NaryNoiseOperator<1> {
-	GDCLASS(ClampNoise, NoiseTreeNode);
+	GDCLASS(ClampNoise, NoiseNode);
 	OBJ_SAVE_TYPE(ClampNoise);
 
 private:
@@ -202,7 +202,7 @@ protected:
 };
 
 class CurveNoise : public NaryNoiseOperator<1> {
-	GDCLASS(CurveNoise, NoiseTreeNode);
+	GDCLASS(CurveNoise, NoiseNode);
 	OBJ_SAVE_TYPE(CurveNoise);
 
 private:
@@ -230,7 +230,7 @@ protected:
 };
 
 class AffineNoise : public NaryNoiseOperator<1> {
-	GDCLASS(AffineNoise, NoiseTreeNode);
+	GDCLASS(AffineNoise, NoiseNode);
 	OBJ_SAVE_TYPE(AffineNoise);
 
 private:
@@ -257,7 +257,7 @@ protected:
 // Noise Selectors
 
 class MixNoise : public NaryNoiseOperator<3> {
-	GDCLASS(MixNoise, NoiseTreeNode);
+	GDCLASS(MixNoise, NoiseNode);
 	OBJ_SAVE_TYPE(MixNoise);
 
 public:
@@ -277,7 +277,7 @@ protected:
 };
 
 class SelectNoise : public NaryNoiseOperator<3> {
-	GDCLASS(SelectNoise, NoiseTreeNode);
+	GDCLASS(SelectNoise, NoiseNode);
 	OBJ_SAVE_TYPE(SelectNoise)
 
 private:
@@ -303,8 +303,8 @@ protected:
 
 // Noise Proxy
 
-class NoiseProxy : public NoiseTreeNode {
-	GDCLASS(NoiseProxy, NoiseTreeNode);
+class NoiseProxy : public NoiseNode {
+	GDCLASS(NoiseProxy, NoiseNode);
 	OBJ_SAVE_TYPE(NoiseProxy)
 
 private:
@@ -321,7 +321,7 @@ private:
 
 public:
 	NoiseProxy() :
-			NoiseTreeNode(1) {}
+			NoiseNode(1) {}
 	virtual ~NoiseProxy();
 
 	virtual real_t get_noise_1d(real_t p_x) const override;
@@ -350,10 +350,10 @@ private:
 	real_t _get_noise_3d(real_t p_x, real_t p_y, real_t p_z);
 };
 
-class NoiseCoordinateRecompute : public NoiseTreeNode {
+class NoiseCoordinateRecompute : public NoiseNode {
 public:
 	NoiseCoordinateRecompute() :
-			NoiseTreeNode(1) {}
+			NoiseNode(1) {}
 	virtual ~NoiseCoordinateRecompute() {}
 
 	virtual real_t get_noise_1d(real_t p_x) const override;
@@ -383,7 +383,7 @@ private:
 };
 
 class LinearTransformNoise : public NoiseCoordinateRecompute {
-	GDCLASS(LinearTransformNoise, NoiseTreeNode)
+	GDCLASS(LinearTransformNoise, NoiseNode)
 	OBJ_SAVE_TYPE(LinearTransformNoise)
 public:
 	LinearTransformNoise() {}
@@ -415,13 +415,13 @@ private:
 	Transform3D transform_3d;
 };
 
-class RescalerNoise : public NoiseTreeNode {
-	GDCLASS(RescalerNoise, NoiseTreeNode)
+class RescalerNoise : public NoiseNode {
+	GDCLASS(RescalerNoise, NoiseNode)
 	OBJ_SAVE_TYPE(RescalerNoise)
 
 public:
 	RescalerNoise() :
-			NoiseTreeNode(1) {}
+			NoiseNode(1) {}
 	virtual ~RescalerNoise();
 
 	void set_noise(Ref<Noise> n);

@@ -277,7 +277,7 @@ void NoiseCoordinateRecompute::set_inner_noise(Ref<Noise> n) {
 	}
 	inner = n;
 	if (inner.is_valid()) {
-		inner->connect_changed(callable_mp(this, &NoiseCoordinateRecompute::_changed));
+		inner->connect_changed(callable_mp(this, &NoiseCoordinateRecompute::_changed), CONNECT_DEFERRED);
 	}
 	emit_changed();
 }
