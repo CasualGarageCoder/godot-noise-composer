@@ -90,13 +90,13 @@ void ClampNoise::_bind_methods() {
 			"is_normalized");
 }
 
-void CurveNoise::set_curve(Ref<Curve> c) {
+void CurveNoise::set_curve(Ref<BetterCurve> c) {
 	if (curve.is_valid()) {
-		curve->disconnect_changed(callable_mp(this, &CurveNoise::_curve_changed));
+		curve->disconnect(BetterCurve::SIGNAL_BAKED, callable_mp(this, &CurveNoise::_curve_changed));
 	}
 	curve = c;
 	if (curve.is_valid()) {
-		curve->connect_changed(callable_mp(this, &CurveNoise::_curve_changed));
+		curve->connect(BetterCurve::SIGNAL_BAKED, callable_mp(this, &CurveNoise::_curve_changed));
 	}
 	emit_changed();
 }
@@ -108,7 +108,7 @@ void CurveNoise::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("get_curve"), &CurveNoise::get_curve);
 
 	ADD_PROPERTY(PropertyInfo(Variant::OBJECT, "curve",
-						 PROPERTY_HINT_RESOURCE_TYPE, "Curve"),
+						 PROPERTY_HINT_RESOURCE_TYPE, "BetterCurve"),
 			"set_curve", "get_curve");
 }
 

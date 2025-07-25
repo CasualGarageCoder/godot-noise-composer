@@ -23,11 +23,20 @@
 
 #include "register_types.h"
 
+#include "core/object/class_db.h"
 #include "noise_composer.h"
 #include "noise_seeder.h"
+#include "visual_noise.h"
+
+#ifdef TOOLS_ENABLED
+#include "editor/visual_noise_editor_plugin.h"
+#endif
 
 void initialize_noise_composer_module(ModuleInitializationLevel p_level) {
 	if (p_level == MODULE_INITIALIZATION_LEVEL_SCENE) {
+		GDREGISTER_ABSTRACT_CLASS(NoiseNode);
+
+		// Programmatic classes
 		GDREGISTER_CLASS(ConstantNoise);
 		GDREGISTER_CLASS(AddNoise);
 		GDREGISTER_CLASS(MultiplyNoise);
@@ -45,7 +54,15 @@ void initialize_noise_composer_module(ModuleInitializationLevel p_level) {
 		GDREGISTER_CLASS(LinearTransformNoise);
 		GDREGISTER_CLASS(RescalerNoise);
 
-		GDREGISTER_CLASS(NoiseSeeder)
+		GDREGISTER_CLASS(NoiseSeeder);
+
+		// Visual classes
+		//GDREGISTER_CLASS(VisualNoise);
+
+		// Visual Editor
+#ifdef TOOLS_ENABLED
+		//EditorPlugins::add_by_type<VisualNoiseEditorPlugin>();
+#endif
 	}
 }
 

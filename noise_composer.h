@@ -29,8 +29,8 @@
 #include "core/object/ref_counted.h"
 #include "core/os/mutex.h"
 #include "core/os/thread.h"
+#include "modules/curvature/curvature.h"
 #include "noise_operator.h"
-#include "scene/resources/curve.h"
 #include <algorithm>
 #include <shared_mutex>
 
@@ -206,7 +206,7 @@ class CurveNoise : public NaryNoiseOperator<1> {
 	OBJ_SAVE_TYPE(CurveNoise);
 
 private:
-	Ref<Curve> curve;
+	Ref<BetterCurve> curve;
 
 public:
 	CurveNoise() :
@@ -215,14 +215,12 @@ public:
 
 	DECLARE_NOISE_OPERAND(source, 0)
 
-	void set_curve(Ref<Curve> c);
-	Ref<Curve> get_curve() const { return curve; }
+	void set_curve(Ref<BetterCurve> c);
+	Ref<BetterCurve> get_curve() const { return curve; }
 
 protected:
 	void _curve_changed() {
-#ifdef __NOT_GONNA_HAPPEN
 		emit_changed();
-#endif
 	}
 
 protected:
@@ -447,8 +445,6 @@ public:
 	virtual real_t get_noise_3d(real_t p_x, real_t p_y, real_t p_z) const override;
 
 	virtual Ref<Noise> get_child(int) const override { return noise; }
-
-	friend void compute_affine_transformation(void *);
 
 protected:
 	static void _bind_methods();
