@@ -12,11 +12,10 @@ public:
 	virtual ~NoiseSeeder() {}
 
 	void set_noise(Ref<Noise> n);
-	Ref<Noise> get_noise() const;
+	_FORCE_INLINE_ Ref<Noise> get_noise() const;
 
 	void set_seed(int s);
-
-	int get_seed() const;
+	_FORCE_INLINE_ int get_seed() const;
 
 protected:
 	static void _bind_methods();

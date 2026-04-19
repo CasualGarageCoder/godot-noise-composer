@@ -27,6 +27,8 @@
 #include <cstddef>
 #include <functional>
 
+#include "core/object/callable_mp.h"
+
 #include "noise_base.h"
 
 template <std::size_t N>

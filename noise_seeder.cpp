@@ -1,4 +1,5 @@
 #include "noise_seeder.h"
+#include "core/object/class_db.h"
 #include "noise_base.h"
 #include <cstdint>
 #include <map>
@@ -12,7 +13,9 @@ void NoiseSeeder::set_noise(Ref<Noise> n) {
 		set_seed(seed);
 	}
 }
-Ref<Noise> NoiseSeeder::get_noise() const { return noise; }
+Ref<Noise> NoiseSeeder::get_noise() const {
+	return noise;
+}
 
 void NoiseSeeder::set_seed(int s) {
 	seed = s;
@@ -54,11 +57,13 @@ void NoiseSeeder::set_seed(int s) {
 
 	for (auto e : to_seed) {
 		int local_seed = rand_d(rand_e);
-		e.second->call_deferred("set_seed", local_seed);
+		e.second->call("set_seed", local_seed);
 	}
 }
 
-int NoiseSeeder::get_seed() const { return seed; }
+int NoiseSeeder::get_seed() const {
+	return seed;
+}
 
 void NoiseSeeder::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("set_noise", "n"), &NoiseSeeder::set_noise);

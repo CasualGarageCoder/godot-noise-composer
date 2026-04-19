@@ -24,27 +24,33 @@
 #ifndef NOISE_COMPOSER_H
 #define NOISE_COMPOSER_H
 
+#include "noise_operator.h"
+
 #include "core/math/transform_2d.h"
 #include "core/object/object.h"
 #include "core/object/ref_counted.h"
 #include "core/os/mutex.h"
 #include "core/os/thread.h"
-#include "modules/curvature/curvature.h"
-#include "noise_operator.h"
+#include "scene/resources/curve.h"
+
 #include <algorithm>
 #include <shared_mutex>
 
-#define DECLARE_NOISE_OPERAND(op_name, op_num)                   \
-	void set_##op_name(Ref<Noise> n) { set_operand(n, op_num); } \
-	Ref<Noise> get_##op_name() const { return get_operand(op_num); }
+#define DECLARE_NOISE_OPERAND(op_name, op_num) \
+	void set_##op_name(Ref<Noise> n) { \
+		set_operand(n, op_num); \
+	} \
+	Ref<Noise> get_##op_name() const { \
+		return get_operand(op_num); \
+	}
 
 #define REGISTER_NOISE_OPERAND(class_name, op_name, property_name) \
-	ClassDB::bind_method(D_METHOD("set_" #op_name, "n"),           \
-			&class_name::set_##op_name);                           \
-	ClassDB::bind_method(D_METHOD("get_" #op_name),                \
-			&class_name::get_##op_name);                           \
-	ADD_PROPERTY(PropertyInfo(Variant::OBJECT, #property_name,     \
-						 PROPERTY_HINT_RESOURCE_TYPE, "Noise"),    \
+	ClassDB::bind_method(D_METHOD("set_" #op_name, "n"), \
+			&class_name::set_##op_name); \
+	ClassDB::bind_method(D_METHOD("get_" #op_name), \
+			&class_name::get_##op_name); \
+	ADD_PROPERTY(PropertyInfo(Variant::OBJECT, #property_name, \
+						 PROPERTY_HINT_RESOURCE_TYPE, "Noise"), \
 			"set_" #op_name, "get_" #op_name);
 
 class ConstantNoise : public NaryNoiseOperator<0> {
@@ -63,7 +69,7 @@ public:
 		value = v;
 		emit_changed();
 	}
-	real_t get_value() const { return value; }
+	_FORCE_INLINE_ real_t get_value() const { return value; }
 
 protected:
 	static void _bind_methods();
@@ -191,11 +197,11 @@ public:
 	DECLARE_NOISE_OPERAND(source, 0)
 
 	void set_lower_bound(real_t v);
-	real_t get_lower_bound() const { return lower_bound; }
+	_FORCE_INLINE_ real_t get_lower_bound() const { return lower_bound; }
 	void set_upper_bound(real_t v);
-	real_t get_upper_bound() const { return upper_bound; }
+	_FORCE_INLINE_ real_t get_upper_bound() const { return upper_bound; }
 	void set_normalized(bool f);
-	bool is_normalized() const { return normalize; }
+	_FORCE_INLINE_ bool is_normalized() const { return normalize; }
 
 protected:
 	static void _bind_methods();
@@ -206,17 +212,17 @@ class CurveNoise : public NaryNoiseOperator<1> {
 	OBJ_SAVE_TYPE(CurveNoise);
 
 private:
-	Ref<BetterCurve> curve;
+	Ref<Curve> curve;
 
 public:
 	CurveNoise() :
-			NaryNoiseOperator<1>([&](const std::array<real_t, 1> &a) { return curve.is_valid() ? curve->sample_baked((a[0] + 1.) / 2.) : 0.; }) {}
+			NaryNoiseOperator<1>([&](const std::array<real_t, 1> &a) { return curve.is_valid() ? curve->sample(a[0]) : 0.; }) {}
 	virtual ~CurveNoise() {}
 
 	DECLARE_NOISE_OPERAND(source, 0)
 
-	void set_curve(Ref<BetterCurve> c);
-	Ref<BetterCurve> get_curve() const { return curve; }
+	void set_curve(Ref<Curve> c);
+	Ref<Curve> get_curve() const { return curve; }
 
 protected:
 	void _curve_changed() {

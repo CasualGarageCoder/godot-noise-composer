@@ -1,6 +1,7 @@
 #ifndef NOISE_COMPOSER_BASE_H
 #define NOISE_COMPOSER_BASE_H
 
+#include "core/object/class_db.h"
 #include "modules/noise/noise.h"
 #include <cstddef>
 #include <iterator>

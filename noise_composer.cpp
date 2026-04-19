@@ -22,8 +22,10 @@
 /**************************************************************************/
 
 #include "noise_composer.h"
+
 #include "core/error/error_macros.h"
 #include "core/object/class_db.h"
+
 #include <cmath>
 
 void ConstantNoise::_bind_methods() {
@@ -90,13 +92,17 @@ void ClampNoise::_bind_methods() {
 			"is_normalized");
 }
 
-void CurveNoise::set_curve(Ref<BetterCurve> c) {
+void CurveNoise::set_curve(Ref<Curve> c) {
 	if (curve.is_valid()) {
-		curve->disconnect(BetterCurve::SIGNAL_BAKED, callable_mp(this, &CurveNoise::_curve_changed));
+		curve->disconnect("changed", callable_mp(this, &CurveNoise::_curve_changed));
+		curve->disconnect("range_changed", callable_mp(this, &CurveNoise::_curve_changed));
+		curve->disconnect("domain_changed", callable_mp(this, &CurveNoise::_curve_changed));
 	}
 	curve = c;
 	if (curve.is_valid()) {
-		curve->connect(BetterCurve::SIGNAL_BAKED, callable_mp(this, &CurveNoise::_curve_changed));
+		curve->connect("changed", callable_mp(this, &CurveNoise::_curve_changed));
+		curve->connect("range_changed", callable_mp(this, &CurveNoise::_curve_changed));
+		curve->connect("domain_changed", callable_mp(this, &CurveNoise::_curve_changed));
 	}
 	emit_changed();
 }
@@ -108,7 +114,7 @@ void CurveNoise::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("get_curve"), &CurveNoise::get_curve);
 
 	ADD_PROPERTY(PropertyInfo(Variant::OBJECT, "curve",
-						 PROPERTY_HINT_RESOURCE_TYPE, "BetterCurve"),
+						 PROPERTY_HINT_RESOURCE_TYPE, "Curve"),
 			"set_curve", "get_curve");
 }
 
@@ -117,14 +123,18 @@ void AffineNoise::set_scale(real_t s) {
 	emit_changed();
 }
 
-real_t AffineNoise::get_scale() const { return scale; }
+real_t AffineNoise::get_scale() const {
+	return scale;
+}
 
 void AffineNoise::set_bias(real_t b) {
 	bias = b;
 	emit_changed();
 }
 
-real_t AffineNoise::get_bias() const { return bias; }
+real_t AffineNoise::get_bias() const {
+	return bias;
+}
 
 void AffineNoise::_bind_methods() {
 	REGISTER_NOISE_OPERAND(AffineNoise, source, source)
@@ -149,7 +159,9 @@ void SelectNoise::set_threshold(real_t t) {
 	emit_changed();
 }
 
-real_t SelectNoise::get_threshold() const { return threshold; }
+real_t SelectNoise::get_threshold() const {
+	return threshold;
+}
 
 void SelectNoise::_bind_methods() {
 	REGISTER_NOISE_OPERAND(SelectNoise, first_noise, first)
