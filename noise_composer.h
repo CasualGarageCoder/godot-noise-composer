@@ -26,7 +26,9 @@
 
 #include "noise_operator.h"
 
+#include "core/math/math_funcs.h"
 #include "core/math/transform_2d.h"
+#include "core/object/class_db.h"
 #include "core/object/object.h"
 #include "core/object/ref_counted.h"
 #include "core/os/mutex.h"
@@ -165,7 +167,7 @@ class InvertNoise : public NaryNoiseOperator<1> {
 
 public:
 	InvertNoise() :
-			NaryNoiseOperator<1>([](const std::array<real_t, 1> &a) { return -a[0]; }) {}
+			NaryNoiseOperator<1>([](const std::array<real_t, 1> &a) { return Math::is_zero_approx(a[0]) ? 0. : 1. / a[0]; }) {}
 	virtual ~InvertNoise() {}
 
 	DECLARE_NOISE_OPERAND(source, 0)
@@ -173,6 +175,22 @@ public:
 protected:
 	static void _bind_methods();
 };
+
+class NegateNoise : public NaryNoiseOperator<1> {
+	GDCLASS(NegateNoise, NoiseNode);
+	OBJ_SAVE_TYPE(NegateNoise);
+
+public:
+	NegateNoise() :
+			NaryNoiseOperator<1>([](const std::array<real_t, 1> &a) { return -a[0]; }) {}
+	virtual ~NegateNoise() {}
+
+	DECLARE_NOISE_OPERAND(source, 0)
+
+protected:
+	static void _bind_methods();
+
+}
 
 class ClampNoise : public NaryNoiseOperator<1> {
 	GDCLASS(ClampNoise, NoiseNode);
