@@ -23,10 +23,11 @@
 
 #include "register_types.h"
 
-#include "core/object/class_db.h"
 #include "noise_composer.h"
 #include "noise_seeder.h"
 #include "visual_noise.h"
+
+#include "core/object/class_db.h"
 
 #ifdef TOOLS_ENABLED
 #include "editor/visual_noise_editor_plugin.h"
@@ -45,6 +46,7 @@ void initialize_noise_composer_module(ModuleInitializationLevel p_level) {
 		GDREGISTER_CLASS(PowerNoise);
 		GDREGISTER_CLASS(AbsoluteNoise);
 		GDREGISTER_CLASS(InvertNoise);
+		GDREGISTER_CLASS(NegateNoise);
 		GDREGISTER_CLASS(ClampNoise);
 		GDREGISTER_CLASS(CurveNoise);
 		GDREGISTER_CLASS(AffineNoise);

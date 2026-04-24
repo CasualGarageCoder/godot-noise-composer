@@ -28,7 +28,6 @@
 
 #include "core/math/math_funcs.h"
 #include "core/math/transform_2d.h"
-#include "core/object/class_db.h"
 #include "core/object/object.h"
 #include "core/object/ref_counted.h"
 #include "core/os/mutex.h"
@@ -189,8 +188,7 @@ public:
 
 protected:
 	static void _bind_methods();
-
-}
+};
 
 class ClampNoise : public NaryNoiseOperator<1> {
 	GDCLASS(ClampNoise, NoiseNode);
