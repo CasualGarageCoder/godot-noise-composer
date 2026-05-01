@@ -51,7 +51,7 @@ void InvertNoise::_bind_methods() {
 }
 
 void NegateNoise::_bind_methods() {
-	REGISTER_NOISE_OPERAND(InvertNoise, source, source)
+	REGISTER_NOISE_OPERAND(NegateNoise, source, source)
 }
 
 void ClampNoise::set_lower_bound(real_t v) {
