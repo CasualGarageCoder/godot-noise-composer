@@ -92,6 +92,7 @@ void SmoothNoise::set_source(Ref<Noise> s) {
 real_t SmoothNoise::get_noise_1d(real_t p_x) const {
 	std::shared_lock<std::shared_mutex> lock(*(const_cast<std::shared_mutex *>(&bake_mutex)));
 	real_t sum = source.is_valid() ? source->get_noise_1d(p_x) : 0.;
+#pragma omp parallel for reduce(+ : sum)
 	for (int i = 0; i < sample_count; ++i) {
 		Vector2 v = kernel_1d[i];
 		sum += source.is_valid() ? source->get_noise_1d(p_x + v.x) * v.y : 0.;
@@ -106,6 +107,7 @@ real_t SmoothNoise::get_noise_2dv(Vector2 p_v) const {
 real_t SmoothNoise::get_noise_2d(real_t p_x, real_t p_y) const {
 	std::shared_lock<std::shared_mutex> lock(*(const_cast<std::shared_mutex *>(&bake_mutex)));
 	real_t sum = source.is_valid() ? source->get_noise_2d(p_x, p_y) : 0.;
+#pragma omp parallel for reduce(+ : sum)
 	for (int i = 0; i < sample_count; ++i) {
 		Vector3 v = kernel_2d[i];
 		sum += source.is_valid() ? source->get_noise_2d(p_x + v.x, p_y + v.y) * v.z : 0.;
@@ -121,6 +123,7 @@ real_t SmoothNoise::get_noise_3dv(Vector3 p_v) const {
 real_t SmoothNoise::get_noise_3d(real_t p_x, real_t p_y, real_t p_z) const {
 	std::shared_lock<std::shared_mutex> lock(*(const_cast<std::shared_mutex *>(&bake_mutex)));
 	real_t sum = source.is_valid() ? source->get_noise_3d(p_x, p_y, p_z) : 0.;
+#pragma omp parallel for reduce(+ : sum)
 	for (int i = 0; i < sample_count; ++i) {
 		Vector4 v = kernel_3d[i];
 		sum += source.is_valid() ? source->get_noise_3d(p_x + v.x, p_y + v.y, p_z + v.z) * v.w : 0.;
