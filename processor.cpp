@@ -90,14 +90,11 @@ void SmoothNoise::set_source(Ref<Noise> s) {
 }
 
 real_t SmoothNoise::get_noise_1d(real_t p_x) const {
-	if (!source.is_valid()) {
-		return 0;
-	}
 	std::shared_lock<std::shared_mutex> lock(*(const_cast<std::shared_mutex *>(&bake_mutex)));
-	real_t sum = source->get_noise_1d(p_x);
+	real_t sum = source.is_valid() ? source->get_noise_1d(p_x) : 0.;
 	for (int i = 0; i < sample_count; ++i) {
 		Vector2 v = kernel_1d[i];
-		sum += source->get_noise_1d(p_x + v.x) * v.y;
+		sum += source.is_valid() ? source->get_noise_1d(p_x + v.x) * v.y : 0.;
 	}
 	return sum / (weight_1d + 1.);
 }
@@ -107,18 +104,13 @@ real_t SmoothNoise::get_noise_2dv(Vector2 p_v) const {
 }
 
 real_t SmoothNoise::get_noise_2d(real_t p_x, real_t p_y) const {
-	if (!source.is_valid()) {
-		return 0;
-	}
 	std::shared_lock<std::shared_mutex> lock(*(const_cast<std::shared_mutex *>(&bake_mutex)));
-	real_t sum = source->get_noise_2d(p_x, p_y);
-	//std::cout << "Start with " << sum;
+	real_t sum = source.is_valid() ? source->get_noise_2d(p_x, p_y) : 0.;
 	for (int i = 0; i < sample_count; ++i) {
 		Vector3 v = kernel_2d[i];
-		sum += source->get_noise_2d(p_x + v.x, p_y + v.y) * v.z;
+		sum += source.is_valid() ? source->get_noise_2d(p_x + v.x, p_y + v.y) * v.z : 0.;
 	}
 	real_t result = sum / (weight_2d + 1.);
-	//std::cout << " and rounded to " << result << std::endl;
 	return result;
 }
 
@@ -127,14 +119,11 @@ real_t SmoothNoise::get_noise_3dv(Vector3 p_v) const {
 }
 
 real_t SmoothNoise::get_noise_3d(real_t p_x, real_t p_y, real_t p_z) const {
-	if (!source.is_valid()) {
-		return 0;
-	}
 	std::shared_lock<std::shared_mutex> lock(*(const_cast<std::shared_mutex *>(&bake_mutex)));
-	real_t sum = source->get_noise_3d(p_x, p_y, p_z);
+	real_t sum = source.is_valid() ? source->get_noise_3d(p_x, p_y, p_z) : 0.;
 	for (int i = 0; i < sample_count; ++i) {
 		Vector4 v = kernel_3d[i];
-		sum += source->get_noise_3d(p_x + v.x, p_y + v.y, p_z + v.z) * v.w;
+		sum += source.is_valid() ? source->get_noise_3d(p_x + v.x, p_y + v.y, p_z + v.z) * v.w : 0.;
 	}
 	return sum / (weight_3d + 1.);
 }
