@@ -21,8 +21,7 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                 */
 /**************************************************************************/
 
-#ifndef NOISE_COMPOSER_H
-#define NOISE_COMPOSER_H
+#pragma once
 
 #include "noise_operator.h"
 
@@ -204,8 +203,12 @@ public:
 	ClampNoise() :
 			NaryNoiseOperator<1>(
 					[&](const std::array<real_t, 1> &a) {
-						real_t clamped = std::clamp(a[0], lower_bound, upper_bound);
-						return (normalize && interval != 0.) ? (clamped - lower_bound) / interval : clamped;
+						real_t clamped = std::min(std::max(a[0], lower_bound), upper_bound);
+						if (normalize && !Math::is_equal_approx(lower_bound, upper_bound)) {
+							return static_cast<real_t>((((clamped - lower_bound) / interval) * 2.) - 1.);
+						} else {
+							return clamped;
+						}
 					}) {}
 
 	virtual ~ClampNoise() {}
@@ -232,7 +235,12 @@ private:
 
 public:
 	CurveNoise() :
-			NaryNoiseOperator<1>([&](const std::array<real_t, 1> &a) { return curve.is_valid() ? curve->sample(a[0]) : 0.; }) {}
+			NaryNoiseOperator<1>([&](const std::array<real_t, 1> &a) {
+				if(curve.is_valid()) {
+					return curve->sample(a[0]);
+				} else {
+					return static_cast<real_t>(0.);
+				} }) {}
 	virtual ~CurveNoise() {}
 
 	DECLARE_NOISE_OPERAND(source, 0)
@@ -486,4 +494,3 @@ private:
 	Mutex queue_mutex;
 	std::shared_mutex shared_mutex;
 };
-#endif

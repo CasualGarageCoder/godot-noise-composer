@@ -55,12 +55,23 @@ void NegateNoise::_bind_methods() {
 }
 
 void ClampNoise::set_lower_bound(real_t v) {
-	lower_bound = std::min(v, upper_bound);
+	if (v > upper_bound) {
+		lower_bound = upper_bound;
+		upper_bound = v;
+	} else {
+		lower_bound = v;
+	}
 	interval = upper_bound - lower_bound;
 	emit_changed();
 }
 
 void ClampNoise::set_upper_bound(real_t v) {
+	if (v < lower_bound) {
+		upper_bound = lower_bound;
+		lower_bound = v;
+	} else {
+		upper_bound = v;
+	}
 	upper_bound = std::max(v, lower_bound);
 	interval = upper_bound - lower_bound;
 	emit_changed();

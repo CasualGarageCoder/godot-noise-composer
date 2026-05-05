@@ -21,8 +21,7 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                 */
 /**************************************************************************/
 
-#ifndef NOISE_OPERATOR_H
-#define NOISE_OPERATOR_H
+#pragma once
 
 #include <cstddef>
 #include <functional>
@@ -110,5 +109,3 @@ protected:
 		return operands[index];
 	}
 };
-
-#endif

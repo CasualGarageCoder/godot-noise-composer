@@ -25,6 +25,7 @@
 
 #include "noise_composer.h"
 #include "noise_seeder.h"
+#include "processor.h"
 
 #include "core/object/class_db.h"
 
@@ -50,6 +51,8 @@ void initialize_noise_composer_module(ModuleInitializationLevel p_level) {
 		GDREGISTER_CLASS(NoiseProxy);
 		GDREGISTER_CLASS(LinearTransformNoise);
 		GDREGISTER_CLASS(RescalerNoise);
+		GDREGISTER_CLASS(DerivativeNoise);
+		GDREGISTER_CLASS(SmoothNoise);
 
 		GDREGISTER_CLASS(NoiseSeeder);
 	}
