@@ -3,6 +3,7 @@
 #include "core/math/math_defs.h"
 #include "core/object/callable_mp.h"
 #include "core/object/class_db.h"
+#include "core/object/property_info.h"
 
 #include <cmath>
 #include <random>
@@ -67,6 +68,9 @@ void DerivativeNoise::set_source(Ref<Noise> s) {
 void DerivativeNoise::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("set_distance", "v"), &DerivativeNoise::set_distance);
 	ClassDB::bind_method(D_METHOD("get_distance"), &DerivativeNoise::get_distance);
+
+	ClassDB::bind_method(D_METHOD("set_source", "v"), &DerivativeNoise::set_source);
+	ClassDB::bind_method(D_METHOD("get_source"), &DerivativeNoise::get_source);
 
 	ADD_PROPERTY(PropertyInfo(Variant::OBJECT, "source",
 						 PROPERTY_HINT_RESOURCE_TYPE, "Noise"),
@@ -199,6 +203,9 @@ void SmoothNoise::compute_kernels() {
 void SmoothNoise::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("set_distance", "v"), &SmoothNoise::set_distance);
 	ClassDB::bind_method(D_METHOD("get_distance"), &SmoothNoise::get_distance);
+
+	ClassDB::bind_method(D_METHOD("set_source", "v"), &SmoothNoise::set_source);
+	ClassDB::bind_method(D_METHOD("get_source"), &SmoothNoise::get_source);
 
 	ClassDB::bind_method(D_METHOD("set_sample_count", "v"), &SmoothNoise::set_sample_count);
 	ClassDB::bind_method(D_METHOD("get_sample_count"), &SmoothNoise::get_sample_count);

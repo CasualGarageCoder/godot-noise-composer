@@ -330,8 +330,8 @@ void LinearTransformNoise::set_transform_3d(Transform3D t) {
 }
 
 void LinearTransformNoise::_bind_methods() {
-	ClassDB::bind_method(D_METHOD("set_source", "n"), &LinearTransformNoise::set_inner_noise);
-	ClassDB::bind_method(D_METHOD("get_source"), &LinearTransformNoise::get_inner_noise);
+	ClassDB::bind_method(D_METHOD("set_source", "n"), &LinearTransformNoise::set_source);
+	ClassDB::bind_method(D_METHOD("get_source"), &LinearTransformNoise::get_source);
 
 	ClassDB::bind_method(D_METHOD("set_scale", "s"), &LinearTransformNoise::set_scale);
 	ClassDB::bind_method(D_METHOD("get_scale"), &LinearTransformNoise::get_scale);

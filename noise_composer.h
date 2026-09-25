@@ -429,6 +429,9 @@ public:
 	void set_transform_3d(Transform3D t);
 	const Transform3D &get_transform_3d() const { return transform_3d; }
 
+	void set_source(Ref<Noise> n) { set_inner_noise(n); }
+	Ref<Noise> get_source() const { return get_inner_noise(); }
+
 protected:
 	static void _bind_methods();
 
