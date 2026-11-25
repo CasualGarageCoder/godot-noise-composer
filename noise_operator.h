@@ -23,12 +23,13 @@
 
 #pragma once
 
-#include <cstddef>
-#include <functional>
+#include "noise_base.h"
 
 #include "core/object/callable_mp.h"
 
-#include "noise_base.h"
+#include <array>
+#include <cstddef>
+#include <functional>
 
 template <std::size_t N>
 class NaryNoiseOperator : public NoiseNode {
